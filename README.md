@@ -8,7 +8,6 @@
 
 #### Clone this repo to your machine.
 
-`git clone https://github.com/Muhammad-Shawaiz/3-Tier-Application`
 
 ### Step 2
  

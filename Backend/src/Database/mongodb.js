@@ -1,55 +1,56 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient } = require('mongodb')
 const mongoose = require('mongoose');
 
-const User = require('../models/userModel');
+const User = require('../models/userModel')
 require('dotenv').config();
 
-// ✅ Correct environment variables
-const url = process.env.MONGODB_URI; // Previously: mongoDBConnection
-const dbName = process.env.DB_NAME;  // Previously: dbName
+// Connection URL
+const url = process.env.mongoDBConnection;
+const client = new MongoClient(url);
 
-// ✅ Keep a single MongoDB client to prevent reconnecting on every request
-const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
+// Database Name
+const dbName = process.env.dbName;
 
 async function dbConnect() {
-    try {
-        // ✅ Check if already connected before reconnecting
-        if (!client.topology || !client.topology.isConnected()) {
-            await client.connect();
-            console.log('✅ Connected to MongoDB');
-        }
-        return client.db(dbName).collection('users'); // ✅ Ensure correct collection name
-    } catch (error) {
-        console.error('❌ MongoDB Connection Failed:', error.message);
-    }
+    // Use connect method to connect to the server
+    await client.connect();
+    console.log('Connected successfully to DataBase server');
+    const db = await client.db(dbName);
+    return db.collection('user');
 }
+
 
 async function createNewUser(data) {
+    console.log('data', data)
+    const newUser = new User({
+        _id: mongoose.Types.ObjectId(),
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+        isActive: true,
+    })
+    newUser.save().then((result) => {
+        return result
+    })
+}
+
+
+async function dbDisconnect() {
     try {
-        console.log('Creating user:', data);
-        const newUser = new User({
-            _id: mongoose.Types.ObjectId(),
-            email: data.email,
-            password: data.password,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            phone: data.phone,
-            isActive: true,
-        });
-        return await newUser.save();  // ✅ Wait for user to be saved properly
+        await client.close()
+        console.log('DataBase Disconnected!')
+        return
     } catch (error) {
-        console.error('❌ Error Creating User:', error.message);
+        console.log(error.message)
     }
 }
 
-// ❌ Removed dbDisconnect() - connection should stay open
-// async function dbDisconnect() {
-//     try {
-//         await client.close();
-//         console.log('🔌 Database Disconnected');
-//     } catch (error) {
-//         console.error('❌ Error Closing DB:', error.message);
-//     }
-// }
+db = {
+    Connect: dbConnect,
+    Disconnect: dbDisconnect,
+    createNewUser: createNewUser
+};
 
-module.exports = { dbConnect, createNewUser };
+module.exports = db;
