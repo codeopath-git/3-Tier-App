@@ -1,26 +1,42 @@
+version: '3.8'  # Updated version
+
 services:
   frontend:
     build: ./Frontend
+    container_name: frontend
     ports:
       - "3000:80"
     depends_on:
       - backend
+    environment:
+      - REACT_APP_BACKEND_URL=http://backend:4000  # Ensure frontend talks to backend correctly
 
   backend:
     build: ./Backend
+    container_name: backend
     ports:
       - "4000:4000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy  # Ensures DB is ready before backend starts
     env_file:
-      - ./Bankend/.env
+      - ./Backend/.env  # Load environment variables from .env
+    restart: always  # Restart on failure
 
   db:
     image: mongo:latest
+    container_name: db
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    restart: always  # Restart if it crashes
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      retries: 5
+      start_period: 20s
 
 volumes:
   mongodb_data:
+    driver: local
