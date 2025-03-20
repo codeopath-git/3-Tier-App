@@ -1,16 +1,22 @@
-
 version: '3'
-services: 
+services:
   frontend:
     build: ./Frontend
     ports:
       - "3000:80"
+    depends_on:
+      - backend
+
   backend:
     build: ./Backend
     ports:
       - "4000:4000"
+    depends_on:
+      - db
+    environment:
+      - MONGODB_URI=mongodb://db:27017/login  # Ensure database name is included
 
   db:
-    image: 'mongo:latest'        
+    image: 'mongo:latest'
     ports:
       - "27017:27017"
