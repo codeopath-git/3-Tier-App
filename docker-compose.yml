@@ -14,8 +14,8 @@ services:
       - "4000:4000"
     depends_on:
       - db
-    environment:
-      - MONGODB_URI=mongodb://db:27017/login
+    env_file:
+      - ./Bankend/.env
 
   db:
     image: mongo:latest
@@ -26,4 +26,3 @@ services:
 
 volumes:
   mongodb_data:
-
