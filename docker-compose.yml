@@ -1,4 +1,5 @@
 version: '3'
+
 services:
   frontend:
     build: ./Frontend
@@ -14,9 +15,15 @@ services:
     depends_on:
       - db
     environment:
-      - MONGODB_URI=mongodb://db:27017/login  # Ensure database name is included
+      - MONGODB_URI=mongodb://db:27017/login
 
   db:
-    image: 'mongo:latest'
+    image: mongo:latest
     ports:
       - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
+
