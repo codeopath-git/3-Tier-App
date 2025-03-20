@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
 var verifyToken = require('./src/middleware/authTokenMiddleware')
 require('dotenv').config();
+console.log("MongoDB URI:", process.env.MONGODB_URI);
 
 const port = 4000
 
